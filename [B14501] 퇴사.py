@@ -35,6 +35,33 @@ def get_money(sche, money):
         i += 1
 
 
+def get_money(sche, money):
+    global ans
+
+
+    if sche == day:
+
+        if ans < money:
+            ans = money
+        return
+
+    i = sche
+    while i < day:
+
+        idx = i
+        max_idx = i + consulting[i][0]
+
+        if max_idx >= day + 1:
+            idx = day
+            get_money(idx, money)
+            idx = i
+        else:
+            idx = max_idx
+            get_money(idx, money + consulting[i][1])
+            idx = i
+        i += 1
+
+
 for t in range(int(input())):
 
     day = int(input())
