@@ -7,7 +7,9 @@ def find_order(idx):
         add_point()
         return
 
+    before = None
     for i in range(9):
+
         if not play_check[i]:
             if idx == 3:
                 find_order(idx + 1)
@@ -24,17 +26,31 @@ def add_point():
     inni = 0
     i = 0
     out = 0
+    point_list = [0] * 4
     point = 0
     while inni < inning:
         idx = play_order[i]
         if players[inni][idx] == 0:
             out += 1
         else:
-            point += players[inni][idx]
+            p = players[inni][idx]
+
+            for idx, po in enumerate(point_list):
+                point_list[idx] += p
+                if point_list[idx] >= 4:
+                    point += 4
+                    point_list[idx] = 0
+
+            cnt = point_list.count(0)
+            while cnt > 0:
+                for idx in range(1, 4):
+                    point_list[idx - 1] = point_list[idx]
+                    point_list[idx] = 0
 
         if out == 3:
             inni += 1
             out = 0
+            point_list = []
 
         i += 1
         if i == 9:
