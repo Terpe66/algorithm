@@ -11,7 +11,10 @@ for T in range(int(input())):
 
     for row in range(length - 1):
         for col in range(1, length - 1):
-            S = [(row, col, 0, [cafe[row][col]])]
+            if cafe[row][col] == cafe[row + 1][col + 1] or cafe[row][col] == cafe[row + 1][col - 1]:
+                continue
+
+            S = [(row + 1, col + 1, 0, [cafe[row][col], cafe[row + 1][col + 1]])]
             while S:
                 r, c, d, dessert = S.pop()
 
@@ -23,10 +26,9 @@ for T in range(int(input())):
                     nr, nc = r + dr[0], c + dc[0]
                     if 0 <= nr < length and 0 <= nc < length and cafe[nr][nc] not in dessert:
                         S.append((nr, nc, 0, dessert[:] + [cafe[nr][nc]]))
-                    if len(dessert) > 1:
-                        nr, nc = r + dr[1], c + dc[1]
-                        if 0 <= nr < length and 0 <= nc < length and cafe[nr][nc] not in dessert:
-                            S.append((nr, nc, 1, dessert[:] + [cafe[nr][nc]]))
+                    nr, nc = r + dr[1], c + dc[1]
+                    if 0 <= nr < length and 0 <= nc < length and cafe[nr][nc] not in dessert:
+                        S.append((nr, nc, 1, dessert[:] + [cafe[nr][nc]]))
                 if d == 1:
                     nr, nc = r + dr[1], c + dc[1]
                     if 0 <= nr < length and 0 <= nc < length and cafe[nr][nc] not in dessert:
