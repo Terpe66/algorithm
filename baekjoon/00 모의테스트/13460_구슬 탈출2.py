@@ -23,8 +23,8 @@ for T in range(int(input())):
         board.append(inputs)
 
     di = [1, -1, 0, 0]
-    visitRB = [[[[False] * 10 for i in range(10)] for o in range(10)] for p in range(10)]
-    visitRB[rb[0]][rb[1]][rb[2]][rb[3]] = True
+    visitRB = []
+    visitRB.append((rb[0], rb[1], rb[2], rb[3]))
     move = deque()
     move.append(rb)
     while move:
@@ -72,8 +72,8 @@ for T in range(int(input())):
                         nbRow -= di[i]
                         nbCol -= di[3 - i]
 
-            if visitRB[nRow][nCol][nbRow][nbCol] == False:
-                visitRB[nRow][nCol][nbRow][nbCol] = True
+            if (nRow, nCol, nbRow, nbCol) not in visitRB:
+                visitRB.append((nRow, nCol, nbRow, nbCol))
                 move.append((nRow, nCol, nbRow, nbCol, cnt + 1))
 
     print(answer)
