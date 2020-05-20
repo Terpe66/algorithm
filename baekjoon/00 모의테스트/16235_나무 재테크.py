@@ -10,47 +10,46 @@ for T in range(int(input())):
     length, trees, years = map(int, input().split())
     ground = [[5] * length for _ in range(length)]
     S2D2 = [list(map(int, input().split())) for _ in range(length)]
-    treeDict = {0: {}, 1: {}}
+    treeDict = {}
 
-    cur = 0
     for _ in range(trees):
         r, c, y = map(int, input().split())
-        treeDict[cur][(r - 1, c - 1)] = deque()
-        treeDict[cur][(r - 1, c - 1)].append(y)
+        treeDict[(r - 1, c - 1)] = deque()
+        treeDict[(r - 1, c - 1)].append(y)
 
     for _ in range(years):
-        next = (cur + 1) % 2
-        for key, val in treeDict[cur].items():
+        tempDict = {}
+        for key, val in treeDict.items():
             p = 0
-            treeDict[next][key] = deque()
+            tempDict[key] = deque()
             for i in range(len(val)):
                 if ground[key[0]][key[1]] >= val[i]:
                     ground[key[0]][key[1]] -= val[i]
                     val[i] += 1
-                    treeDict[next][key].append(val[i])
+                    tempDict[key].append(val[i])
                 else:
-                    p += treeDict[cur][key][i] // 2
-                    treeDict[cur][key][i] = -1
+                    p += val[i] // 2
+                    val[i] = -1
             ground[key[0]][key[1]] += p
 
-        for key, val in treeDict[cur].items():
+        for key, val in treeDict.items():
             for v in range(len(val)):
                 if val[v] % 5 == 0:
                     for j in range(8):
                         r, c = key[0] + dr[j], key[1] + dc[j]
                         if 0 <= r < length and 0 <= c < length:
-                            if not treeDict[next].get((r, c), False):
-                                treeDict[next][(r, c)] = deque()
-                            treeDict[next][(r, c)].appendleft(1)
+                            if not tempDict.get((r, c), False):
+                                tempDict[(r, c)] = deque()
+                            tempDict[(r, c)].appendleft(1)
 
         for r in range(length):
             for c in range(length):
                 ground[r][c] += S2D2[r][c]
 
-        cur = next
+        treeDict, tempDict = tempDict, treeDict
 
     answer = 0
-    for val in treeDict[next].values():
+    for val in treeDict.values():
         answer += len(val)
 
     print(answer)
