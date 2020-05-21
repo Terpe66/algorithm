@@ -1,56 +1,49 @@
-from collections import deque
-
 import sys
 sys.stdin = open("16235.txt")
 
-dr = [-1, -1, -1, 0, 1, 1, 1, 0]
-dc = [-1, 0, 1, 1, 1, 0, -1, -1]
+drc = [(-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1)]
 
 for T in range(int(input())):
     length, trees, years = map(int, input().split())
-    ground = [[5] * length for _ in range(length)]
+    ground = [[[5, []] for _ in range(length)] for _ in range(length)]
     S2D2 = [list(map(int, input().split())) for _ in range(length)]
-    treeDict = {}
 
     for _ in range(trees):
         r, c, y = map(int, input().split())
-        treeDict[(r - 1, c - 1)] = deque()
-        treeDict[(r - 1, c - 1)].append(y)
+        ground[r - 1][c - 1][1].append(y)
 
     for _ in range(years):
-        tempDict = {}
-        for key, val in treeDict.items():
-            p = 0
-            tempDict[key] = deque()
-            for i in range(len(val)):
-                if ground[key[0]][key[1]] >= val[i]:
-                    ground[key[0]][key[1]] -= val[i]
-                    val[i] += 1
-                    tempDict[key].append(val[i])
-                else:
-                    p += val[i] // 2
-                    val[i] = -1
-            ground[key[0]][key[1]] += p
+        for row in range(length):
+            for col in range(length):
+                p = 0
+                idx = 0
+                for i in range(len(ground[row][col][1])):
+                    if ground[row][col][0] >= ground[row][col][1][i]:
+                        ground[row][col][0] -= ground[row][col][1][i]
+                        ground[row][col][1][i] += 1
+                        idx += 1
+                    else:
+                        p += ground[row][col][1][i] // 2
+                ground[row][col][0] += p
+                while idx < len(ground[row][col][1]):
+                    ground[row][col][1].pop()
 
-        for key, val in treeDict.items():
-            for v in range(len(val)):
-                if val[v] % 5 == 0:
-                    for j in range(8):
-                        r, c = key[0] + dr[j], key[1] + dc[j]
+        for row in range(length):
+            for col in range(length):
+                ground[row][col][0] += S2D2[row][col]
+                cnt = 0
+                for i in ground[row][col][1]:
+                    if i % 5 == 0:
+                        cnt += 1
+                if cnt:
+                    for y, x in drc:
+                        r, c = row + y, col + x
                         if 0 <= r < length and 0 <= c < length:
-                            if not tempDict.get((r, c), False):
-                                tempDict[(r, c)] = deque()
-                            tempDict[(r, c)].appendleft(1)
-
-        for r in range(length):
-            for c in range(length):
-                ground[r][c] += S2D2[r][c]
-
-        treeDict, tempDict = tempDict, treeDict
+                            ground[r][c][1] = [1] * cnt + ground[r][c][1]
 
     answer = 0
-    for val in treeDict.values():
-        answer += len(val)
+    for row in range(length):
+        for col in range(length):
+            answer += len(ground[row][col][1])
 
     print(answer)
-
