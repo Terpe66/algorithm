@@ -1,0 +1,37 @@
+18
+1
+L-
+2
+F+ B+
+4
+U- D- L+ R+
+10
+L- U- L+ U- L- U- U- L+ U+ U+
+2
+F+ U+
+3
+L+ U+ B+
+4
+D- L+ U- L-
+5
+U- D+ R+ U+ R-
+4
+F+ F+ F- F-
+1
+D-
+16
+U+ R+ R+ F+ F+ R+ R+ U+ F+ F+ R+ R+ F+ F+ U- L+
+8
+U+ B- R- F- D+ L- B+ U-
+5
+L- F+ L+ D+ B+
+4
+U+ D+ F- F-
+3
+U+ U+ F+
+3
+U+ U+ F-
+16
+B+ D- U+ F- R- B+ B- B- R- R- U+ L- L+ L- R+ B-
+17
+D+ D+ D+ R- D+ R- F- L+ U+ B+ R- R- L- U+ R- R+ F+
