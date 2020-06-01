@@ -1,76 +1,107 @@
 import sys
 sys.stdin = open("5656.txt")
 
-from collections import deque
 
-def block(count, new):
-    global ans
+def reblock():
+    for col in range(width):
+        for row in range(height - 1, -1, -1):
+            if copy_board[row][col] == 0:
+                r = row
+                while 0 <= r:
+                    if copy_board[r][col] == 0:
+                        break
+                    r -= 1
 
-    if count == 0:
-        if ans > new:
-            ans = new
+                nr = r - 1
+                while 0 <= nr:
+                    if copy_board[nr][col] != 0:
+                        break
+                    nr -= 1
+
+                if nr == -1:
+                    break
+                copy_board[r][col], copy_board[nr][col] = copy_board[nr][col], 0
+
+
+def break_block(selected):
+
+    count = block_cnt
+    for col in selected:
+        for row in range(height):
+            if copy_board[row][col] > 0:
+                temp = [(row, col, copy_board[row][col])]
+                copy_board[row][col] = 0
+                count -= 1
+                while temp:
+                    r, c, cnt = temp.pop()
+                    for nr in range(r - cnt + 1, r + cnt):
+                        if nr < 0:
+                            continue
+                        if nr >= height:
+                            break
+
+                        if copy_board[nr][c] > 1:
+                            temp.append((nr, c, copy_board[nr][c]))
+                            copy_board[nr][c] = 0
+                            count -= 1
+                        elif copy_board[nr][c] == 1:
+                            copy_board[nr][c] = 0
+                            count -= 1
+
+                    for nc in range(c - cnt + 1, c + cnt):
+                        if nc < 0:
+                            continue
+                        if nc >= width:
+                            break
+
+                        if copy_board[r][nc] > 1:
+                            temp.append((r, nc, copy_board[r][nc]))
+                            copy_board[r][nc] = 0
+                            count -= 1
+                        elif copy_board[r][nc] == 1:
+                            copy_board[r][nc] = 0
+                            count -= 1
+
+                reblock()
+                break
+
+    return count
+
+
+def select_block(deep, shot, selected):
+    global answer
+
+    if deep == shot:
+        now = break_block(selected)
+        answer = min(answer, now)
+        copy()
         return
 
-    for col in range(width):
-        for row in range(height):
-            if board[row][col] != "0" and visited[row][col] == False:
-                block_list.append((row, col, board[row][col]))
-
-                for i in range(4):
-                    chk = int(board[row][col])
-                    if i == 0:
-                        nr = row
-                        while 0 <= nr and chk:
-                            if visited[nr][col] == False:
-                                if board[nr][col] != "0":
-                                    block_list.append((nr, col, board[nr][col], count - 1))
-                                    backup.append((nr, c))
-                                    visited[nr][c] = True
-
-                                chk -= 1
-                            nr -= 1
-
-                    elif i == 1:
-                        nr = r
-                        while nr < height and chk:
-                            if visited[nr][c] == False:
-                                if board[nr][c] != "0":
-                                    Q.append((nr, c, board[nr][c], count - 1))
-                                    backup.append((nr, c))
-                                    visited[nr][c] = True
-                                chk -= 1
-                            nr += 1
-
-                    elif i == 2:
-                        nc = c
-                        while 0 <= nc and chk:
-                            if visited[r][nc] == False:
-                                if board[r][nc] != "0":
-                                    Q.append((r, nc, board[r][nc], count - 1))
-                                    backup.append((r, nc))
-                                    visited[r][nc] = True
-                                chk -= 1
-                            nc -= 1
-
-                    elif i == 3:
-                        nc = c
-                        while nc < width and chk:
-                            if visited[r][nc] == False:
-                                if board[r][nc] != "0":
-                                    Q.append((r, nc, board[r][nc], count - 1))
-                                    backup.append((r, nc))
-                                    visited[r][nc] = True
-                                chk -= 1
-                            nc += 1
+    for i in range(width):
+        select_block(deep + 1, shot, selected + [i])
 
 
-for t in range(int(input())):
-    count, width, height = map(int, input().split())
-
-    board = [input().split() for _ in range(height)]
-    visited = [[False] * width for _ in range(height)]
-    block_list = deque()
-    backup = []
+def copy():
+    for row in range(height):
+        for col in range(width):
+            copy_board[row][col] = board[row][col]
 
 
-    print(Q)
+for T in range(int(input())):
+    answer = 0xffffffff
+    shot, width, height = map(int, input().split())
+    board = [[0] * width for _ in range(height)]
+    copy_board = [[0] * width for _ in range(height)]
+    block_cnt = 0
+
+    for row in range(height):
+        inputs = list(map(int, input().split()))
+        for col in range(width):
+            board[row][col] = inputs[col]
+            copy_board[row][col] = inputs[col]
+            if inputs[col] > 0:
+                block_cnt += 1
+
+    select_block(0, shot, [])
+
+    print("#{} {}".format(T + 1, answer))
