@@ -29,11 +29,13 @@ def break_block(selected):
     for col in selected:
         for row in range(height):
             if copy_board[row][col] > 0:
-                temp = [(row, col, copy_board[row][col])]
+                temp[0] = (row, col, copy_board[row][col])
+                temp_idx = 1
                 copy_board[row][col] = 0
                 count -= 1
-                while temp:
-                    r, c, cnt = temp.pop()
+                while temp_idx != 0:
+                    temp_idx -= 1
+                    r, c, cnt = temp[temp_idx]
                     for nr in range(r - cnt + 1, r + cnt):
                         if nr < 0:
                             continue
@@ -41,7 +43,8 @@ def break_block(selected):
                             break
 
                         if copy_board[nr][c] > 1:
-                            temp.append((nr, c, copy_board[nr][c]))
+                            temp[temp_idx] = (nr, c, copy_board[nr][c])
+                            temp_idx += 1
                             copy_board[nr][c] = 0
                             count -= 1
                         elif copy_board[nr][c] == 1:
@@ -55,7 +58,8 @@ def break_block(selected):
                             break
 
                         if copy_board[r][nc] > 1:
-                            temp.append((r, nc, copy_board[r][nc]))
+                            temp[temp_idx] = (r, nc, copy_board[r][nc])
+                            temp_idx += 1
                             copy_board[r][nc] = 0
                             count -= 1
                         elif copy_board[r][nc] == 1:
@@ -79,6 +83,8 @@ def select_block(deep, shot, selected):
 
     for i in range(width):
         select_block(deep + 1, shot, selected + [i])
+        if answer == 0:
+            return
 
 
 def copy():
@@ -87,6 +93,7 @@ def copy():
             copy_board[row][col] = board[row][col]
 
 
+temp = [0] * (12 * 15)
 for T in range(int(input())):
     answer = 0xffffffff
     shot, width, height = map(int, input().split())
