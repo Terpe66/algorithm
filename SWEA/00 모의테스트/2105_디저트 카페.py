@@ -1,57 +1,45 @@
 import sys
 sys.stdin = open("2105.txt")
 
+
+def find_cafe(r, c, dir, cafe_list):
+    global answer
+
+    if answer == (length - 1) * 2:
+        return
+
+    if dir == 0:
+        if r + 1 < length and c + 1 < length and cafe[r + 1][c + 1] not in cafe_list:
+            find_cafe(r + 1, c + 1, 0, cafe_list + [cafe[r + 1][c + 1]])
+        if len(cafe_list) > 1 and r + 1 < length and c - 1 >= 0 and cafe[r + 1][c - 1] not in cafe_list:
+            find_cafe(r + 1, c - 1, 1, cafe_list + [cafe[r + 1][c - 1]])
+    elif dir == 1:
+        if r + 1 < length and c - 1 >= 0 and cafe[r + 1][c - 1] not in cafe_list:
+            find_cafe(r + 1, c - 1, 1, cafe_list + [cafe[r + 1][c - 1]])
+        if r - 1 >= 0 and c - 1 >= 0 and cafe[r - 1][c - 1] not in cafe_list:
+            find_cafe(r - 1, c - 1, 2, cafe_list + [cafe[r - 1][c - 1]])
+    elif dir == 2:
+        if r - 1 >= 0 and c - 1 >= 0 and cafe[r - 1][c - 1] not in cafe_list:
+            find_cafe(r - 1, c - 1, 2, cafe_list + [cafe[r - 1][c - 1]])
+        if r - 1 >= 0 and c + 1 < length and cafe[r - 1][c + 1] not in cafe_list:
+            find_cafe(r - 1, c + 1, 3, cafe_list + [cafe[r - 1][c + 1]])
+        if r - 1 == row and c + 1 == col:
+            answer = max(answer, len(cafe_list))
+    elif dir == 3:
+        if r - 1 >= 0 and c + 1 < length and cafe[r - 1][c + 1] not in cafe_list:
+            find_cafe(r - 1, c + 1, 3, cafe_list + [cafe[r - 1][c + 1]])
+        if r - 1 == row and c + 1 == col:
+            answer = max(answer, len(cafe_list))
+
 for T in range(int(input())):
+    answer = -1
     length = int(input())
     cafe = [list(map(int, input().split())) for _ in range(length)]
-    answer = -1
-    dr = [1, 1, -1, -1]
-    dc = [1, -1, -1, 1]
-    dw = [0, 1, 2, 3]
 
-    for row in range(length - 1):
+    for row in range(length):
         for col in range(1, length - 1):
-            if cafe[row][col] == cafe[row + 1][col + 1] or cafe[row][col] == cafe[row + 1][col - 1]:
+            if row == col:
                 continue
+            find_cafe(row, col, 0, [cafe[row][col]])
 
-            S = [(row + 1, col + 1, 0, [cafe[row][col], cafe[row + 1][col + 1]])]
-            while S:
-                r, c, d, dessert = S.pop()
-
-                if r == row and c == col and answer < len(dessert) > 1:
-                    answer = len(dessert)
-                    continue
-
-                if d == 0:
-                    nr, nc = r + dr[0], c + dc[0]
-                    if 0 <= nr < length and 0 <= nc < length and cafe[nr][nc] not in dessert:
-                        S.append((nr, nc, 0, dessert[:] + [cafe[nr][nc]]))
-                    nr, nc = r + dr[1], c + dc[1]
-                    if 0 <= nr < length and 0 <= nc < length and cafe[nr][nc] not in dessert:
-                        S.append((nr, nc, 1, dessert[:] + [cafe[nr][nc]]))
-                if d == 1:
-                    nr, nc = r + dr[1], c + dc[1]
-                    if 0 <= nr < length and 0 <= nc < length and cafe[nr][nc] not in dessert:
-                        S.append((nr, nc, 1, dessert[:] + [cafe[nr][nc]]))
-                    nr, nc = r + dr[2], c + dc[2]
-                    if 0 <= nr < length and 0 <= nc < length and cafe[nr][nc] not in dessert:
-                        S.append((nr, nc, 2, dessert[:] + [cafe[nr][nc]]))
-                if d == 2:
-                    nr, nc = r + dr[2], c + dc[2]
-                    if 0 <= nr < length and 0 <= nc < length and cafe[nr][nc] not in dessert:
-                        S.append((nr, nc, 2, dessert[:] + [cafe[nr][nc]]))
-                    if abs(row - r) == abs(col - c):
-                        nr, nc = r + dr[3], c + dc[3]
-                        d = 3
-                        if 0 <= nr < length and 0 <= nc < length and cafe[nr][nc] not in dessert:
-                            S.append((nr, nc, 3, dessert[:] + [cafe[nr][nc]]))
-                if d == 3:
-                    nr, nc = r + dr[3], c + dc[3]
-                    if 0 <= nr < length and 0 <= nc < length and cafe[nr][nc] not in dessert:
-                        S.append((nr, nc, 3, dessert[:] + [cafe[nr][nc]]))
-                    if nr == row and nc == col:
-                        S.append((nr, nc, 3, dessert[:]))
-
-
-
-    print("#{} {}".format(T+1, answer))
+    print("#{} {}".format(T + 1, answer))
