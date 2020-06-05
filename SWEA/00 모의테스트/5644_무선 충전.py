@@ -1,86 +1,64 @@
 import sys
 sys.stdin = open("5644.txt")
 
-for t in range(int(input())):
-    move, cp = map(int, input().split())
-    person_1 = [""] + input().split()
-    person_2 = [""] + input().split()
 
-    charge = [tuple(map(int, input().split())) for _ in range(cp)]
-    charge_spot = [[] for _ in range(cp)]
-    for i in range(cp):
-        col, row, rng, per = charge[i]
+drc = [(0, 0), (-1, 0), (0, 1), (1, 0), (0, -1)]
+for T in range(int(input())):
+    answer = 0
+    time, bc = map(int, input().split())
+    board = [[[0] * bc for _ in range(19)] for _ in range(19)]
+    person = [list(map(int, input().split())), list(map(int, input().split()))]
+    for i in range(bc):
+        c, r, rg, power = map(int, input().split())
+        r, c = r + 3, c + 3
+        crg = rg
+        for row in range(r - rg, r + 1):
+            for col in range(c - rg + crg, c + rg + 1 - crg):
+                board[row][col][i] = power
+            crg -= 1
+        crg = 1
+        for row in range(r + 1, r + rg + 1):
+            for col in range(c - rg + crg, c + rg + 1 - crg):
+                board[row][col][i] = power
+            crg += 1
 
-        c = 0
-        for j in range(row - rng, row + rng + 1):
-            for k in range(col - c, col + c + 1):
-                if 0 < j <= 10 and 0 < k <= 10:
-                    charge_spot[i].append((j, k))
-            if j < row:
-                c += 1
-            else:
-                c -= 1
+    frow = fcol = 4
+    srow = scol = 13
+    first = second = 0
+    for t in range(time + 1):
+        fmax = 0
+        fidx = 0
+        for i in range(bc):
+            if fmax < board[frow][fcol][i]:
+                fmax = board[frow][fcol][i]
+                fidx = i
 
+        smax = 0
+        sidx = 0
+        for i in range(bc):
+            if smax < board[srow][scol][i]:
+                smax = board[srow][scol][i]
+                sidx = i
 
-    chk = 0
-    while chk < 2:
-        if chk == 0:
-            row = col = 1
-            tmp = person_1
-        elif chk == 1:
-            row = col = 10
-            tmp = person_2
+        point = fmax + smax
+        if fmax == smax and fidx == sidx:
+            fcomp = scomp = 0
+            for i in range(bc):
+                if fcomp < board[frow][fcol][i] and i != fidx:
+                    fcomp = board[frow][fcol][i]
 
+            for i in range(bc):
+                if scomp < board[srow][scol][i] and i != sidx:
+                    scomp = board[srow][scol][i]
 
-        for i in range(move + 1):
-            if tmp[i] == "1":
-                row -= 1
-            elif tmp[i] == "2":
-                col += 1
-            elif tmp[i] == "3":
-                row += 1
-            elif tmp[i] == "4":
-                col -= 1
+            comp = fmax // 2
+            point = max(comp * 2, fmax + scomp, smax + fcomp)
 
-            tmp[i] = []
-            for j in range(cp):
-                if (row, col) in charge_spot[j]:
-                    tmp[i].append((charge[j][3], j))
-        chk += 1
+        answer += point
 
-    ans = 0
-    for i in range(move + 1):
-        if not person_1[i] and not person_2[i]:
-            continue
-        if len(person_1[i]) == 1 and len(person_2[i]) == 1:
-            if person_1[i] == person_2[i]:
-                ans += person_1[i][0][0]
-            else:
-                ans += person_1[i][0][0] + person_2[i][0][0]
-        elif len(person_1[i]) == 1 and not person_2[i]:
-            ans += person_1[i][0][0]
-        elif len(person_2[i]) == 1 and not person_1[i]:
-            ans += person_2[i][0][0]
-        elif len(person_1[i]) > 1 and not person_2[i]:
-            ans += max(person_1[i])[0]
-        elif len(person_2[i]) > 1 and not person_1[i]:
-            ans += max(person_2[i])[0]
-        else:
-            if max(person_1[i]) == max(person_2[i]):
-                base = max(person_1[i])
-                a = b = (0, 0)
-                for j in range(len(person_1[i])):
-                    if a < person_1[i][j] != base:
-                        a = person_1[i][j]
-                for j in range(len(person_2[i])):
-                    if b < person_2[i][j] != base:
-                        b = person_2[i][j]
-                tmp = max(a, b)
-                if base[0] // 2 > base[0] + tmp[0]:
-                    ans += base[0]
-                else:
-                    ans += base[0] + tmp[0]
-            else:
-                ans += max(person_1[i])[0] + max(person_2[i])[0]
+        if t < time:
+            fidx, sidx = person[0][t], person[1][t]
+            frow, fcol = frow + drc[fidx][0], fcol + drc[fidx][1]
+            srow, scol = srow + drc[sidx][0], scol + drc[sidx][1]
 
-    print(f"#{t + 1} {ans}")
+    print("#{} {}".format(T + 1, answer))
