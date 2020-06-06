@@ -3,58 +3,38 @@ sys.stdin = open("1953.txt")
 
 from collections import deque
 
+drc = [(-1, 0), (0, 1), (1, 0), (0, -1)]
 for T in range(int(input())):
-    height, width, row, col, time = map(int, input().split())
-    Map = []
-    chk = []
-    for _ in range(height):
-        Map.append(input().split())
-        chk.append([False] * width)
-    chk[row][col] = True
-    ans = 1
-    time -= 1
-    Q = deque()
-    Q.append((row, col, time))
-    dir = [-1, 1, 0, 0]
-    pipe = [("1", "2", "5", "6"), ("1", "2", "4", "7"), ("1", "3", "6", "7"), ("1", "3", "4", "5")]
-    while Q:
-        r, c, t = Q.popleft()
-        spot = Map[r][c]
-        if t:
-            for i in range(4):
-                C = False
-                if spot == "1":
-                    nrow, ncol = r + dir[i], c + dir[3 - i]
-                    if 0 <= nrow < height and 0 <= ncol < width and Map[nrow][ncol] in pipe[i] and chk[nrow][ncol] == False:
-                        C = True
-                elif spot == "2" and i <= 1:
-                    nrow, ncol = r + dir[i], c + dir[3 - i]
-                    if 0 <= nrow < height and 0 <= ncol < width and Map[nrow][ncol] in pipe[i] and chk[nrow][ncol] == False:
-                        C = True
-                elif spot == "3" and i >= 2:
-                    nrow, ncol = r + dir[i], c + dir[3 - i]
-                    if 0 <= nrow < height and 0 <= ncol < width and Map[nrow][ncol] in pipe[i] and chk[nrow][ncol] == False:
-                        C = True
-                elif spot == "4" and i % 2 == 0:
-                    nrow, ncol = r + dir[i], c + dir[3 - i]
-                    if 0 <= nrow < height and 0 <= ncol < width and Map[nrow][ncol] in pipe[i] and chk[nrow][ncol] == False:
-                        C = True
-                elif spot == "5" and 1 <= i <= 2:
-                    nrow, ncol = r + dir[i], c + dir[3 - i]
-                    if 0 <= nrow < height and 0 <= ncol < width and Map[nrow][ncol] in pipe[i] and chk[nrow][ncol] == False:
-                        C = True
-                elif spot == "6" and i % 2:
-                    nrow, ncol = r + dir[i], c + dir[3 - i]
-                    if 0 <= nrow < height and 0 <= ncol < width and Map[nrow][ncol] in pipe[i] and chk[nrow][ncol] == False:
-                        C = True
-                elif spot == "7":
-                    if i == 0 or i == 3:
-                        nrow, ncol = r + dir[i], c + dir[3 - i]
-                        if 0 <= nrow < height and 0 <= ncol < width and Map[nrow][ncol] in pipe[i] and chk[nrow][ncol] == False:
-                            C = True
-                if C:
-                    Q.append((nrow, ncol, t - 1))
-                    chk[nrow][ncol] = True
-                    ans += 1
+    answer = 1
+    height, width, hole_row, hole_col, left = map(int, input().split())
+    tunnel = [list(map(int, input().split())) for _ in range(height)]
+    time = [[0xffffffff] * width for _ in range(height)]
 
-    print(f"#{T + 1} {ans}")
+    thief = deque()
+    thief.append((hole_row, hole_col))
+    time[hole_row][hole_col] = 1
+    while thief:
+        row, col = thief.popleft()
+
+        if time[row][col] == left:
+            continue
+
+        for i in range(4):
+            y, x = drc[i]
+            nrow, ncol = row + y, col + x
+            if 0 <= nrow < height and 0 <= ncol < width and time[nrow][ncol] == 0xffffffff and tunnel[nrow][ncol] > 0:
+                check = False
+                if i == 0 and tunnel[row][col] in (1, 2, 4, 7) and tunnel[nrow][ncol] in (1, 2, 5, 6):
+                    check = True
+                elif i == 1 and tunnel[row][col] in (1, 3, 4, 5) and tunnel[nrow][ncol] in (1, 3, 6, 7):
+                    check = True
+                elif i == 2 and tunnel[row][col] in (1, 2, 5, 6) and tunnel[nrow][ncol] in (1, 2, 4, 7):
+                    check = True
+                elif i == 3 and tunnel[row][col] in (1, 3, 6, 7) and tunnel[nrow][ncol] in (1, 3, 4, 5):
+                    check = True
+                if check:
+                    thief.append((nrow, ncol))
+                    time[nrow][ncol] = time[row][col] + 1
+                    answer += 1
+
+    print("#{} {}".format(T + 1, answer))
