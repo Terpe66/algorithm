@@ -1,70 +1,61 @@
 import sys
 sys.stdin = open("2382.txt")
 
-class Bug:
-    def __init__(self, row, col, bugs, dir, name, cnt):
-        self.row = row
-        self.col = col
-        self.bugs = bugs
-        self.dir = dir
-        self.name = name
-        self.cnt = cnt
-
+drc = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 for T in range(int(input())):
-    size, time, bug = map(int, input().split())
-    Map = [[[] for j in range(size)] for i in range(size)]
-    bugs = [0] * bug
-    for i in range(bug):
-        row, col, bs, dir = map(int, input().split())
-        bugs[i] = Bug(row, col, bs, dir, i, 0)
-        Map[bugs[i].row][bugs[i].col].append(bugs[i])
+    answer = 0
+    length, time, K = map(int, input().split())
+    virus = []
+    for i in range(K):
+        r, c, n, d = map(int, input().split())
+        virus.append([r, c, n, d - 1])
 
     t = 0
     while t < time:
-        for i in range(bug):
-            if bugs[i]:
-                if len(Map[bugs[i].row][bugs[i].col]) > 1:
-                    max_bugs = sum_bugs = tmp_dir = 0
-                    tmp_name = []
-                    for j in range(len(Map[bugs[i].row][bugs[i].col])):
-                        if Map[bugs[i].row][bugs[i].col][j].cnt == t:
-                            tmp_name.append(Map[bugs[i].row][bugs[i].col][j].name)
-                            sum_bugs += Map[bugs[i].row][bugs[i].col][j].bugs
-                            if Map[bugs[i].row][bugs[i].col][j].bugs > max_bugs:
-                                max_bugs = Map[bugs[i].row][bugs[i].col][j].bugs
-                                tmp_dir = Map[bugs[i].row][bugs[i].col][j].dir
-                    if tmp_name:
-                        bugs[i].bugs, bugs[i].dir = sum_bugs, tmp_dir
-                        for j in range(bug):
-                            if bugs[j] and bugs[j].name in tmp_name and bugs[j].name != bugs[i].name:
-                                Map[bugs[j].row][bugs[j].col].remove(bugs[j])
-                                bugs[j] = False
-                Map[bugs[i].row][bugs[i].col].remove(bugs[i])
+        for i in range(len(virus)):
+            r, c, n, d = virus[i]
+            y, x = drc[d]
+            nr, nc = r + y, c + x
+            if nc == 0:
+                virus[i][2] //= 2
+                virus[i][3] = 3
+            elif nc == length - 1:
+                virus[i][2] //= 2
+                virus[i][3] = 2
+            elif nr == 0:
+                virus[i][2] //= 2
+                virus[i][3] = 1
+            elif nr == length - 1:
+                virus[i][2] //= 2
+                virus[i][3] = 0
+            virus[i][0], virus[i][1] = nr, nc
 
-                if bugs[i].dir == 1:
-                    bugs[i].row -= 1
-                elif bugs[i].dir == 2:
-                    bugs[i].row += 1
-                elif bugs[i].dir == 3:
-                    bugs[i].col -= 1
-                elif bugs[i].dir == 4:
-                    bugs[i].col += 1
+        temp = {}
+        for i in range(len(virus)):
+            temp.setdefault((virus[i][0], virus[i][1]), []).append((virus[i][2], i))
 
-                if bugs[i].row == 0 or bugs[i].row == size - 1 or bugs[i].col == 0 or bugs[i].col == size - 1:
-                    bugs[i].bugs //= 2
-                    if bugs[i].dir % 2:
-                        bugs[i].dir += 1
-                    else:
-                        bugs[i].dir -= 1
+        check = False
+        for key, val in temp.items():
+            if len(val) > 1:
+                check = True
+                val.sort()
+                main = val[-1]
+                point = 0
+                for s in val:
+                    if s != main:
+                        r, c, n, d = virus[s[1]]
+                        point += n
+                        virus[s[1]] = [0, 0, 0, 0]
+                virus[main[1]][2] += point
 
-                # print((bugs[i].row, bugs[i].col, bugs[i].name, bugs[i].dir), size)
-                Map[bugs[i].row][bugs[i].col].append(bugs[i])
-                bugs[i].cnt += 1
+        if check:
+            for i in range(len(virus) - 1, -1, -1):
+                r, c, n, d = virus[i]
+                if r == 0 and c == 0:
+                    virus.pop(i)
         t += 1
 
-    sum_bugs = 0
-    for i in range(bug):
-        if bugs[i]:
-            sum_bugs += bugs[i].bugs
+    for i in range(len(virus)):
+        answer += virus[i][2]
 
-    print(f"#{T + 1} {sum_bugs}")
+    print("#{} {}".format(T + 1, answer))
