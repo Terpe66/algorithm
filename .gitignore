@@ -2,3 +2,10 @@ venv/
 .idea/
 hidden
 __pycache__
+
+
+.vs/
+*.sln
+*.filters
+*.vcxproj
+*.user
